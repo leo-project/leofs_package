@@ -1,5 +1,5 @@
 Name:		leofs
-Version:	0.9.1
+Version:	%{ver}
 Release:	1
 Summary:	LeoFS is a highly available, distributed, eventually consistent object/blob store.
 
@@ -17,16 +17,15 @@ LeoFS is a highly available, distributed, eventually consistent object/blob stor
 echo ${RPM_BUILD_ROOT}
 #%setup -q -n leofs-%{version}
 git clone https://github.com/leo-project/leofs.git ${RPM_BUILD_DIR}
-git clone https://github.com/leo-project/cherly.git ${RPM_BUILD_DIR}/deps/cherly
 
 %build
-git checkout 0.9.1
+git checkout %{version}
 make
 make release
 
 %install
 %__mkdir -p ${RPM_BUILD_ROOT}%{_prefix}/local/leofs/%{version}
-%__cp -rp ${RPM_BUILD_DIR}/package/* ${RPM_BUILD_ROOT}%{_prefix}/local/leofs/%{version}
+%__cp -rp ${RPM_BUILD_DIR}/package/leofs/* ${RPM_BUILD_ROOT}%{_prefix}/local/leofs/%{version}
 
 %clean
 %__rm -rf ${RPM_BUILD_DIR}
@@ -37,5 +36,7 @@ make release
 %{_prefix}/local/leofs/%{version}
 
 %changelog
-* Thu Jul  5 2012  <leofs@leofs.org>
+* Wed Mar 27 2013 <leofs@leofs.org>
+- Corresponding argument
+* Thu Jul  5 2012 <leofs@leofs.org>
 - Initial build.
