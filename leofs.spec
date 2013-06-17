@@ -24,8 +24,8 @@ make
 make release
 
 %install
-%__mkdir -p ${RPM_BUILD_ROOT}%{_prefix}/local/leofs/%{version}
-%__cp -rp ${RPM_BUILD_DIR}/package/leofs/* ${RPM_BUILD_ROOT}%{_prefix}/local/leofs/%{version}
+%__mkdir -p ${RPM_BUILD_ROOT}%{_prefix}/local/leofs-%{version}
+%__cp -rp ${RPM_BUILD_DIR}/package/* ${RPM_BUILD_ROOT}%{_prefix}/local/leofs-%{version}
 
 %clean
 %__rm -rf ${RPM_BUILD_DIR}
@@ -33,9 +33,11 @@ make release
 
 %files
 %defattr(-,root,root,-)
-%{_prefix}/local/leofs/%{version}
+%{_prefix}/local/leofs-%{version}
 
 %changelog
+* Mon Jun 17 2013 <leofs@leofs.org>
+- Change directory name and hierarchy
 * Wed Mar 27 2013 <leofs@leofs.org>
 - Corresponding argument
 * Thu Jul  5 2012 <leofs@leofs.org>
