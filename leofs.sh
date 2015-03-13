@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-
+cd `dirname $0`
 if [ $# -eq 1 ]; then
   sed -e "s/%{ver}/${1}/g" leofs.spec > leofs-${1}.spec
   rpmbuild -bb leofs-${1}.spec
