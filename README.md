@@ -15,16 +15,16 @@ $ mkdir -p ~/rpm/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
 
 3. Copy spec file to 'SPECS' directory  
  ```
-$ cp leofs.sh ~/rpm/SPECS  
-$ cp leofs.spec ~/rpm/SPECS
+$ cp rpm/make_rpm.sh ~/rpm/SPECS  
+$ cp rpm/leofs.spec ~/rpm/SPECS
  ```
 
 4. Build RPM file  
  ```
 $ cd ~/rpm/SPECS  
-$ sh leofs.sh VERSION 
+$ sh make_rpm.sh VERSION 
 Example:  
-$ sh leofs.sh 0.14.0  
+$ sh make_rpm.sh 0.14.0  
  ``` 
   * RPM file is created in the 'RPMS' directory.
 
@@ -40,7 +40,7 @@ $ mkdir {WORK_DIRECTORY}
 
 3. Copy script file  
  ```
-$ cp make_deb.sh {WORK_DIRECTORY}
+$ cp deb/make_deb.sh {WORK_DIRECTORY}
  ```
 
 4. Build deb file
