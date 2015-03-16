@@ -8,6 +8,7 @@ License:	Apache License
 URL:		http://www.leofs.org/
 Source0:	leofs-%{version}.tar.gz
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
+Prefix:		%{_prefix}/local/leofs
 #BuildArch:	noarch
 
 %description
@@ -25,7 +26,9 @@ make release
 
 %install
 %__mkdir -p ${RPM_BUILD_ROOT}%{_prefix}/local/leofs/%{version}
-%__cp -rp ${RPM_BUILD_DIR}/package/leofs/* ${RPM_BUILD_ROOT}%{_prefix}/local/leofs/%{version}
+%__mkdir -p ${RPM_BUILD_ROOT}%{_prefix}/local/bin
+%__cp -rp ${RPM_BUILD_DIR}/package/* ${RPM_BUILD_ROOT}%{_prefix}/local/leofs/%{version}
+%__cp -rp ${RPM_BUILD_DIR}/leofs-adm ${RPM_BUILD_ROOT}%{_prefix}/local/bin
 
 %clean
 %__rm -rf ${RPM_BUILD_DIR}
@@ -34,8 +37,15 @@ make release
 %files
 %defattr(-,root,root,-)
 %{_prefix}/local/leofs/%{version}
+%{_prefix}/local/bin/leofs-adm
 
 %changelog
+* Fri Mar 13 2015 <leofs@leofs.org>
+- Modify directory name and hierarchy
+* Wed Jun 26 2013 <leofs@leofs.org>
+- Modify directory name and hierarchy
+* Mon Jun 17 2013 <leofs@leofs.org>
+- Change directory name and hierarchy
 * Wed Mar 27 2013 <leofs@leofs.org>
 - Corresponding argument
 * Thu Jul  5 2012 <leofs@leofs.org>
