@@ -21,14 +21,14 @@ leofs (${1}-1) unstable; urgency=low
 
   * Initial release.
 
- -- Jun TAKIZAWA <leofs@leofs.org>  ${DT1}
+ -- LeoProject <leoproject_leofs@googlegroups.com>  ${DT1}
 EOT
 
 cat << 'EOT' >> debian/control
 Source: leofs
 Section: unknown
 Priority: optional
-Maintainer: Jun TAKIZAWA <leofs@leofs.org>
+Maintainer: LeoProject <leoproject_leofs@googlegroups.com>
 Build-Depends: debhelper (>= 8.0.0)
 Standards-Version: 3.9.2
 Homepage: http://www.leofs.org/
@@ -54,11 +54,11 @@ Upstream-Name: leofs
 Source: http://www.leofs.org/
 
 Files: *
-Copyright: ${DT2} Jun TAKIZAWA <leofs@leofs.org>
+Copyright: ${DT2} LeoProject <leoproject_leofs@googlegroups.com>
 License: Apache-2.0
 
 Files: debian/*
-Copyright: ${DT2} Jun TAKIZAWA <leofs@leofs.org>
+Copyright: ${DT2} LeoProject <leoproject_leofs@googlegroups.com>
 License: Apache-2.0
 
 License: Apache-2.0
