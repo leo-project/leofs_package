@@ -17,9 +17,12 @@ LeoFS is a highly available, distributed, eventually consistent object/blob stor
 %prep
 echo ${RPM_BUILD_ROOT}
 #%setup -q -n leofs-%{version}
-git clone https://github.com/leo-project/leofs.git ${RPM_BUILD_DIR}
+
+%__rm -rf ${RPM_BUILD_DIR}/leofs.git
+git clone https://github.com/leo-project/leofs.git ${RPM_BUILD_DIR}/leofs.git
 
 %build
+cd leofs.git
 git checkout %{version}
 make
 make release
@@ -27,11 +30,11 @@ make release
 %install
 %__mkdir -p ${RPM_BUILD_ROOT}%{_prefix}/local/leofs/%{version}
 %__mkdir -p ${RPM_BUILD_ROOT}%{_prefix}/local/bin
-%__cp -rp ${RPM_BUILD_DIR}/package/* ${RPM_BUILD_ROOT}%{_prefix}/local/leofs/%{version}
-%__cp -rp ${RPM_BUILD_DIR}/leofs-adm ${RPM_BUILD_ROOT}%{_prefix}/local/bin
+%__cp -rp ${RPM_BUILD_DIR}/leofs.git/package/* ${RPM_BUILD_ROOT}%{_prefix}/local/leofs/%{version}
+%__cp -rp ${RPM_BUILD_DIR}/leofs.git/leofs-adm ${RPM_BUILD_ROOT}%{_prefix}/local/bin
 
 %clean
-%__rm -rf ${RPM_BUILD_DIR}
+%__rm -rf ${RPM_BUILD_DIR}/leofs.git
 %__rm -rf ${RPM_BUILD_ROOT}
 
 %files
