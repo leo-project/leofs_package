@@ -16,6 +16,9 @@ BuildRequires:  cmake gcc check-devel
 BuildRequires:  gcc-c++ lzo-devel zlib-devel
 #BuildArch:	noarch
 
+Requires(post): %{_sbindir}/update-alternatives
+Requires(postun): %{_sbindir}/update-alternatives
+
 %description
 LeoFS is a highly available, distributed, eventually consistent object/blob store. Organizations can use LeoFS to store lots of data efficiently, safely, and inexpensive.
 
@@ -36,18 +39,28 @@ make release
 %__mkdir -p ${RPM_BUILD_ROOT}%{_prefix}/local/leofs/%{version}
 %__mkdir -p ${RPM_BUILD_ROOT}%{_prefix}/local/bin
 %__cp -rp ${RPM_BUILD_DIR}/leofs.git/package/* ${RPM_BUILD_ROOT}%{_prefix}/local/leofs/%{version}
-%__cp -rp ${RPM_BUILD_DIR}/leofs.git/leofs-adm ${RPM_BUILD_ROOT}%{_prefix}/local/bin
 
 %clean
 %__rm -rf ${RPM_BUILD_DIR}/leofs.git
 %__rm -rf ${RPM_BUILD_ROOT}
 
+%post
+# special case: handle side-by-side install with old version where leofs-adm isn't handled by alternatives
+[ -L %{_prefix}/local/bin/leofs-adm ] || rm -f %{_prefix}/local/bin/leofs-adm
+
+%{_sbindir}/update-alternatives --install %{_prefix}/local/bin/leofs-adm leofs-adm %{_prefix}/local/leofs/%{version}/leofs-adm 10
+
+%postun
+%{_sbindir}/update-alternatives --remove leofs-adm %{_prefix}/local/leofs/%{version}/leofs-adm
+
 %files
 %defattr(-,root,root,-)
 %{_prefix}/local/leofs/%{version}
-%{_prefix}/local/bin/leofs-adm
+%ghost %{_prefix}/local/bin/leofs-adm
 
 %changelog
+* Thu Feb 23 2017 <Vladimir.MV@gmail.com>
+- manage /usr/local/bin/leofs-adm with alternatives
 * Fri Mar 13 2015 <leofs@leofs.org>
 - Modify directory name and hierarchy
 * Wed Jun 26 2013 <leofs@leofs.org>
