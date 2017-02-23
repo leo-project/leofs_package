@@ -9,6 +9,11 @@ URL:		http://www.leofs.org/
 Source0:	leofs-%{version}.tar.gz
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 Prefix:		%{_prefix}/local/leofs
+BuildRequires:  git
+# for building leo_mcerl/c_src/libcutil
+BuildRequires:  cmake gcc check-devel
+# for building eleveldb/c_src/snappy
+BuildRequires:  gcc-c++ lzo-devel zlib-devel
 #BuildArch:	noarch
 
 %description
