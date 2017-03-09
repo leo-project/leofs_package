@@ -39,6 +39,7 @@ make release
 %__mkdir -p ${RPM_BUILD_ROOT}%{_prefix}/local/leofs/%{version}
 %__mkdir -p ${RPM_BUILD_ROOT}%{_prefix}/local/bin
 %__cp -rp ${RPM_BUILD_DIR}/leofs.git/package/* ${RPM_BUILD_ROOT}%{_prefix}/local/leofs/%{version}
+%__cp -rp ${RPM_BUILD_DIR}/leofs.git/leofs-adm ${RPM_BUILD_ROOT}%{_prefix}/local/bin
 
 %clean
 %__rm -rf ${RPM_BUILD_DIR}/leofs.git
