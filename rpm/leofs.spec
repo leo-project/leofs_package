@@ -5,7 +5,7 @@ Summary:	LeoFS is a highly available, distributed, eventually consistent object/
 
 Group:		Applications/System
 License:	Apache License
-URL:		http://www.leofs.org/
+URL:		https://leofs-project.net/leofs/
 Source0:	leofs-%{version}.tar.gz
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
 Prefix:		%{_prefix}/local/leofs
@@ -62,13 +62,13 @@ make release
 %changelog
 * Thu Feb 23 2017 <Vladimir.MV@gmail.com>
 - manage /usr/local/bin/leofs-adm with alternatives
-* Fri Mar 13 2015 <leofs@leofs.org>
+* Fri Mar 13 2015 <leofs@leo-project.net>
 - Modify directory name and hierarchy
-* Wed Jun 26 2013 <leofs@leofs.org>
+* Wed Jun 26 2013 <leofs@leo-project.net>
 - Modify directory name and hierarchy
-* Mon Jun 17 2013 <leofs@leofs.org>
+* Mon Jun 17 2013 <leofs@leo-project.net>
 - Change directory name and hierarchy
-* Wed Mar 27 2013 <leofs@leofs.org>
+* Wed Mar 27 2013 <leofs@leo-project.net>
 - Corresponding argument
-* Thu Jul  5 2012 <leofs@leofs.org>
+* Thu Jul  5 2012 <leofs@leo-project.net>
 - Initial build.
