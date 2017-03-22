@@ -31,7 +31,7 @@ Priority: optional
 Maintainer: LeoProject <leoproject_leofs@googlegroups.com>
 Build-Depends: debhelper (>= 8.0.0)
 Standards-Version: 3.9.2
-Homepage: http://www.leofs.org/
+Homepage: https://leo-project.net/leofs/
 #Vcs-Git: git://git.debian.org/collab-maint/leofs.git
 #Vcs-Browser: http://git.debian.org/?p=collab-maint/leofs.git;a=summary
 
@@ -51,7 +51,7 @@ EOT
 cat << EOT >> debian/copyright
 Format: http://dep.debian.net/deps/dep5
 Upstream-Name: leofs
-Source: http://www.leofs.org/
+Source: https://github.com/leo-project/leofs
 
 Files: *
 Copyright: ${DT2} LeoProject <leoproject_leofs@googlegroups.com>
