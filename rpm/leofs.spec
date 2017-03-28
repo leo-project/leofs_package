@@ -73,9 +73,8 @@ COOKIE=%{_prefix}/local/leofs/.erlang.cookie
     > $COOKIE
 CURRENT_OWNER=$(stat -c %G:%U $COOKIE)
 CURRENT_PERMISSIONS=$(stat -c %a $COOKIE)
-[ "a$CURRENT_OWNER" != aleofs:leofs ] && chown leofs:leofs $COOKIE
-[ "a$CURRENT_PERMISSIONS" != a400 ] && chmod 0400 $COOKIE
-:
+[ "a$CURRENT_OWNER" == aleofs:leofs ] || chown leofs:leofs $COOKIE
+[ "a$CURRENT_PERMISSIONS" == a400 ] || chmod 0400 $COOKIE
 
 %postun
 %{_sbindir}/update-alternatives --remove leofs-adm %{_prefix}/local/leofs/%{version}/leofs-adm
