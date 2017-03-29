@@ -69,12 +69,12 @@ getent passwd leofs > /dev/null || \
 # It's created with random string and must have 0400 permissions, owned by leofs user
 COOKIE=%{_prefix}/local/leofs/.erlang.cookie
 [ -f $COOKIE ] || \
-    echo -ne $(dd if=/dev/urandom bs=1 count=32 2>/dev/null | md5sum | cut -d " " -f 1) \
+    /bin/echo -ne $(dd if=/dev/urandom bs=1 count=32 2>/dev/null | md5sum | cut -d " " -f 1) \
     > $COOKIE
 CURRENT_OWNER=$(stat -c %G:%U $COOKIE)
 CURRENT_PERMISSIONS=$(stat -c %a $COOKIE)
-[ "a$CURRENT_OWNER" == aleofs:leofs ] || chown leofs:leofs $COOKIE
-[ "a$CURRENT_PERMISSIONS" == a400 ] || chmod 0400 $COOKIE
+[ "a$CURRENT_OWNER" = aleofs:leofs ] || chown leofs:leofs $COOKIE
+[ "a$CURRENT_PERMISSIONS" = a400 ] || chmod 0400 $COOKIE
 
 %postun
 %{_sbindir}/update-alternatives --remove leofs-adm %{_prefix}/local/leofs/%{version}/leofs-adm
