@@ -99,33 +99,31 @@ cat << 'EOT' >> debian/leofs.postinst
 case "$1" in
     configure)
 
-        if ! getent group leofs >/dev/null; then
-	    addgroup --quiet --system leofs
-        fi
+        getent group leofs > /dev/null || addgroup --quiet --system leofs
 
-        adduser --system --group --home /usr/local/leofs leofs \
-	    --quiet --shell /sbin/nologin --gecos "LeoFS Object Storage"
+        getent passwd leofs > /dev/null || adduser --system --group --home /usr/local/leofs leofs \
+            --quiet --shell /sbin/nologin --gecos "LeoFS Object Storage"
 
-	COOKIE=/usr/local/leofs/.erlang.cookie
-	[ -f $COOKIE ] || /bin/echo -ne $(dd if=/dev/urandom bs=1 count=32 2>/dev/null | md5sum | cut -d " " -f 1) > $COOKIE
-	CURRENT_OWNER=$(stat -c %G:%U $COOKIE)
-	CURRENT_PERMISSIONS=$(stat -c %a $COOKIE)
-	[ "a$CURRENT_OWNER" = aleofs:leofs ] || chown leofs:leofs $COOKIE
-	[ "a$CURRENT_PERMISSIONS" = a400 ] || chmod 0400 $COOKIE
+        COOKIE=/usr/local/leofs/.erlang.cookie
+        [ -f $COOKIE ] || /bin/echo -ne $(dd if=/dev/urandom bs=1 count=32 2>/dev/null | md5sum | cut -d " " -f 1) > $COOKIE
+        CURRENT_OWNER=$(stat -c %G:%U $COOKIE)
+        CURRENT_PERMISSIONS=$(stat -c %a $COOKIE)
+        [ "a$CURRENT_OWNER" = aleofs:leofs ] || chown leofs:leofs $COOKIE
+        [ "a$CURRENT_PERMISSIONS" = a400 ] || chmod 0400 $COOKIE
 
-	chown -R leofs:leofs /usr/local/leofs/$version/leo_storage/avs
-	chown -R leofs:leofs /usr/local/leofs/$version/leo_*/log
-	chown -R leofs:leofs /usr/local/leofs/$version/leo_*/work
-	chown leofs:leofs /usr/local/leofs/$version/leo_*/etc
-	chown leofs:leofs /usr/local/leofs/$version/leo_*/snmp/*/db
+        chown -R leofs:leofs /usr/local/leofs/$version/leo_storage/avs
+        chown -R leofs:leofs /usr/local/leofs/$version/leo_*/log
+        chown -R leofs:leofs /usr/local/leofs/$version/leo_*/work
+        chown leofs:leofs /usr/local/leofs/$version/leo_*/etc
+        chown leofs:leofs /usr/local/leofs/$version/leo_*/snmp/*/db
 
-	chmod -R 2755 /usr/local/leofs/$version/leo_storage/avs
-	chmod -R 2755 /usr/local/leofs/$version/leo_*/log
-	chmod 2755 /usr/local/leofs/$version/leo_*/work
-	chmod 2755 /usr/local/leofs/$version/leo_*/etc
-	chmod 2755 /usr/local/leofs/$version/leo_*/snmp/*/db
+        chmod -R 2755 /usr/local/leofs/$version/leo_storage/avs
+        chmod -R 2755 /usr/local/leofs/$version/leo_*/log
+        chmod 2755 /usr/local/leofs/$version/leo_*/work
+        chmod 2755 /usr/local/leofs/$version/leo_*/etc
+        chmod 2755 /usr/local/leofs/$version/leo_*/snmp/*/db
 
-	;;
+    ;;
 esac
 
 #DEBHELPER#
