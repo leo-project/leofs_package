@@ -81,6 +81,58 @@ License: Apache-2.0
 # different copyright/license attached and list them here.
 EOT
 
+
+echo 9 > debian/compat
+
+cat << 'EOT' >> debian/leofs.postinst
+#!/bin/sh
+
+set -e
+
+EOT
+cat << EOT >> debian/leofs.postinst
+version=${1}
+EOT
+
+cat << 'EOT' >> debian/leofs.postinst
+
+case "$1" in
+    configure)
+
+        if ! getent group leofs >/dev/null; then
+	    addgroup --quiet --system leofs
+        fi
+
+        adduser --system --group --home /usr/local/leofs leofs \
+	    --quiet --shell /sbin/nologin --gecos "LeoFS Object Storage"
+
+	COOKIE=/usr/local/leofs/.erlang.cookie
+	[ -f $COOKIE ] || /bin/echo -ne $(dd if=/dev/urandom bs=1 count=32 2>/dev/null | md5sum | cut -d " " -f 1) > $COOKIE
+	CURRENT_OWNER=$(stat -c %G:%U $COOKIE)
+	CURRENT_PERMISSIONS=$(stat -c %a $COOKIE)
+	[ "a$CURRENT_OWNER" = aleofs:leofs ] || chown leofs:leofs $COOKIE
+	[ "a$CURRENT_PERMISSIONS" = a400 ] || chmod 0400 $COOKIE
+
+	chown -R leofs:leofs /usr/local/leofs/$version/leo_storage/avs
+	chown -R leofs:leofs /usr/local/leofs/$version/leo_*/log
+	chown -R leofs:leofs /usr/local/leofs/$version/leo_*/work
+	chown leofs:leofs /usr/local/leofs/$version/leo_*/etc
+	chown leofs:leofs /usr/local/leofs/$version/leo_*/snmp/*/db
+
+	chmod -R 2755 /usr/local/leofs/$version/leo_storage/avs
+	chmod -R 2755 /usr/local/leofs/$version/leo_*/log
+	chmod 2755 /usr/local/leofs/$version/leo_*/work
+	chmod 2755 /usr/local/leofs/$version/leo_*/etc
+	chmod 2755 /usr/local/leofs/$version/leo_*/snmp/*/db
+
+	;;
+esac
+
+#DEBHELPER#
+
+exit 0
+EOT
+
 cat << 'EOT' >> debian/rules
 #!/usr/bin/make -f
 # -*- makefile -*-
@@ -129,9 +181,11 @@ binary-arch:	checkroot build
 	$(MAKE)
 	$(MAKE) release
 	cp -r package/* $(installdir)
+	mkdir $(installdir)/leo_storage/avs
 	cp leofs-adm $(bindir)
 	dpkg-shlibdeps $(installdir)/leo_manager_0/erts-6.3/bin/beam
 	mkdir -p debian/tmp/DEBIAN
+	dh_installdeb -Pdebian/tmp
 	dpkg-gencontrol
 	chown -R root:root debian/tmp
 	chmod -R u+w,go=rX debian/tmp
