@@ -112,12 +112,14 @@ case "$1" in
         [ "a$CURRENT_PERMISSIONS" = a400 ] || chmod 0400 $COOKIE
 
         chown -R leofs:leofs /usr/local/leofs/$version/leo_storage/avs
+        chown -R leofs:leofs /usr/local/leofs/$version/leo_gateway/cache
         chown -R leofs:leofs /usr/local/leofs/$version/leo_*/log
         chown -R leofs:leofs /usr/local/leofs/$version/leo_*/work
         chown leofs:leofs /usr/local/leofs/$version/leo_*/etc
         chown leofs:leofs /usr/local/leofs/$version/leo_*/snmp/*/db
 
         chmod -R 2755 /usr/local/leofs/$version/leo_storage/avs
+        chmod -R 2755 /usr/local/leofs/$version/leo_gateway/cache
         chmod -R 2755 /usr/local/leofs/$version/leo_*/log
         chmod 2755 /usr/local/leofs/$version/leo_*/work
         chmod 2755 /usr/local/leofs/$version/leo_*/etc
@@ -180,6 +182,7 @@ binary-arch:	checkroot build
 	$(MAKE) release
 	cp -r package/* $(installdir)
 	mkdir $(installdir)/leo_storage/avs
+	mkdir $(installdir)/leo_gateway/cache
 	cp leofs-adm $(bindir)
 	dpkg-shlibdeps $(installdir)/leo_manager_0/erts-6.3/bin/beam
 	mkdir -p debian/tmp/DEBIAN

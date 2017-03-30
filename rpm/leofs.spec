@@ -46,6 +46,7 @@ make release
 %__cp -rp ${RPM_BUILD_DIR}/leofs.git/package/* ${RPM_BUILD_ROOT}%{_prefix}/local/leofs/%{version}
 %__cp -rp ${RPM_BUILD_DIR}/leofs.git/leofs-adm ${RPM_BUILD_ROOT}%{_prefix}/local/bin
 %__mkdir -p ${RPM_BUILD_ROOT}%{_prefix}/local/leofs/%{version}/leo_storage/avs
+%__mkdir -p ${RPM_BUILD_ROOT}%{_prefix}/local/leofs/%{version}/leo_gateway/cache
 
 %clean
 %__rm -rf ${RPM_BUILD_DIR}/leofs.git
@@ -84,6 +85,7 @@ CURRENT_PERMISSIONS=$(stat -c %a $COOKIE)
 %dir %{target_dir}
 
 %attr(2755,leofs,leofs) %{target_dir}/leo_storage/avs
+%attr(2755,leofs,leofs) %{target_dir}/leo_gateway/cache
 %attr(2755,leofs,leofs) %{target_dir}/leo_*/log
 %attr(2755,leofs,leofs) %{target_dir}/leo_*/work
 %dir %attr(2755,leofs,leofs) %{target_dir}/leo_*/etc
