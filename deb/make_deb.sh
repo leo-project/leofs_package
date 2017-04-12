@@ -6,6 +6,8 @@ DT1=`date | awk '{print $1", "$3" "$2" "$6" "$4" +0900"}'`
 DT2=`date | awk '{print $6}'`
 LEOFS=leofs-${1}
 
+./check_version.sh ${1} || exit 1
+
 git clone https://github.com/leo-project/leofs.git
 
 mv leofs ${LEOFS}
