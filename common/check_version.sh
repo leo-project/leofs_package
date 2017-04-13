@@ -24,9 +24,9 @@ go_on_after_warning () {
 
     echo "Do you want to continue? The resulting package is not likely to work correctly."
     echo "It is recommended that you use older version of packaging scripts instead"
-	echo "(older version is available at https://github.com/leo-project/leofs_package/tree/1.0.0)"
+    echo "(older version is available at https://github.com/leo-project/leofs_package/tree/1.0.0)"
     read -p "Type y to continue: " answer
-	case "$answer" in
+    case "$answer" in
         y|Y ) echo "Ignoring possible problems, proceed at your own risk!"
               continue_anyway=true ;;
           * ) echo "Aborting package build!"
