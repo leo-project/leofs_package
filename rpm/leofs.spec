@@ -63,8 +63,6 @@ getent passwd leofs > /dev/null || \
 # special case: handle side-by-side install with old version where leofs-adm isn't handled by alternatives
 [ -L %{_prefix}/local/bin/leofs-adm ] || rm -f %{_prefix}/local/bin/leofs-adm
 
-%{_sbindir}/update-alternatives --install %{_prefix}/local/bin/leofs-adm leofs-adm %{_prefix}/local/leofs/%{version}/leofs-adm 10
-
 # .erlang.cookie needs to be created now, otherwise startup script will try to
 # create it and fail, since $HOME isn't writable by leofs user.
 # It's created with random string and must have 0400 permissions, owned by leofs user
@@ -79,6 +77,11 @@ CURRENT_PERMISSIONS=$(stat -c %a $COOKIE)
 
 %postun
 %{_sbindir}/update-alternatives --remove leofs-adm %{_prefix}/local/leofs/%{version}/leofs-adm
+
+%posttrans
+# Runs only on install/upgrade; on upgrade, runs after %postun of old package,
+# so there is no conflict if both old and new version try to remove/install the same alternative
+%{_sbindir}/update-alternatives --install %{_prefix}/local/bin/leofs-adm leofs-adm %{_prefix}/local/leofs/%{version}/leofs-adm 10
 
 %files
 %defattr(-,root,root,-)
