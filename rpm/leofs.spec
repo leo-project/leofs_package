@@ -101,7 +101,10 @@ CURRENT_PERMISSIONS=$(stat -c %a $COOKIE)
 %dir %{target_dir}/leo_manager*
 %{target_dir}/leo_*/bin
 %{target_dir}/leo_*/erts-*
-%{target_dir}/leo_*/etc/*
+%config %{target_dir}/leo_*/etc/*schema
+%config(noreplace) %{target_dir}/leo_*/etc/*.conf
+%config(noreplace) %{target_dir}/leo_*/etc/*.environment
+%config(noreplace) %{target_dir}/leo_gateway/etc/*.pem
 %{target_dir}/leo_*/lib
 %{target_dir}/leo_*/releases
 %{target_dir}/leo_*/snmp
