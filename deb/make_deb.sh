@@ -186,7 +186,7 @@ binary-arch:	checkroot build
 	mkdir $(installdir)/leo_storage/avs
 	mkdir $(installdir)/leo_gateway/cache
 	cp leofs-adm $(bindir)
-	dpkg-shlibdeps $(installdir)/leo_manager_0/erts-6.3/bin/beam
+	dpkg-shlibdeps $(installdir)/leo_manager_0/erts-*/bin/beam
 	mkdir -p debian/tmp/DEBIAN
 	dh_installdeb -Pdebian/tmp
 	dpkg-gencontrol
