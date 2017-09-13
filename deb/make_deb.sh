@@ -6,7 +6,17 @@ DT1=`date | awk '{print $1", "$3" "$2" "$6" "$4" +0900"}'`
 DT2=`date | awk '{print $6}'`
 LEOFS=leofs-${1}
 
-./check_version.sh ${1} || exit 1
+case "$2" in
+    yes|no)  USE_SYSTEMD=$2
+             ;;
+    *)       echo "Wrong syntax (\"$2\" is neither \"yes\" nor \"no\")"
+             echo "Usage: $0 <package_version> <use_systemd>"
+             echo "where use_systemd can be \"yes\" or \"no\""
+             exit 1
+             ;;
+esac
+
+./check_version.sh ${1} ${2} || exit 1
 
 git clone https://github.com/leo-project/leofs.git
 
@@ -31,7 +41,15 @@ Source: leofs
 Section: unknown
 Priority: optional
 Maintainer: LeoProject <leoproject_leofs@googlegroups.com>
-Build-Depends: debhelper (>= 8.0.0)
+Build-Depends: debhelper (>= 9.0.0), check, git, cmake, liblzo2-dev, zlib1g-dev,
+EOT
+
+if [ "$USE_SYSTEMD" = yes ]
+then
+    echo "  dh-systemd" >> debian/control
+fi
+
+cat << 'EOT' >> debian/control
 Standards-Version: 3.9.2
 Homepage: https://leo-project.net/leofs/
 #Vcs-Git: git://git.debian.org/collab-maint/leofs.git
@@ -39,10 +57,18 @@ Homepage: https://leo-project.net/leofs/
 
 Package: leofs
 Architecture: any
-Depends: ${shlibs:Depends}
+Depends: ${shlibs:Depends}, sudo,
+EOT
+
+if [ "$USE_SYSTEMD" = yes ]
+then
+    echo "  systemd" >> debian/control
+fi
+
+cat << 'EOT' >> debian/control
 #, ${misc:Depends}
-Description: LeoFS is the Web shaped object storage system.
- LeoFS is the Web shaped object storage system and S3 compatible storage.
+Description: LeoFS is a highly available, distributed, eventually consistent S3 compatible storage.
+ Organizations can use LeoFS to store lots of data efficiently, safely, and inexpensive.
 
 #Package: leofs-doc
 #Architecture: all
@@ -127,6 +153,24 @@ case "$1" in
         chmod 2755 /usr/local/leofs/$version/leo_*/etc
         chmod 2755 /usr/local/leofs/$version/leo_*/snmp/*/db
 
+EOT
+
+if [ "$USE_SYSTEMD" = yes ]
+then
+    cat << 'EOT' >> debian/leofs.postinst
+# If this is first configured version, or previous configured version was < 1.4.0, reset services state
+        if [ -z "$2" ] || dpkg --compare-versions "$2" lt 1.4.0
+        then
+# preset enables everything by default on Debian/Ubuntu, so it's meaningless to do for the rest of services
+            systemctl preset leofs-epmd.socket
+        fi
+
+        systemctl daemon-reload
+        systemctl start leofs-epmd.socket || :
+EOT
+fi
+
+cat << 'EOT' >> debian/leofs.postinst
     ;;
 esac
 
@@ -134,6 +178,39 @@ esac
 
 exit 0
 EOT
+
+if [ "$USE_SYSTEMD" = yes ]
+then
+    cat << 'EOT' >> debian/leofs.prerm
+if [ "$1" = "remove" ]; then
+    systemctl --no-reload disable leofs-epmd.service > /dev/null 2>&1 || :
+    systemctl stop leofs-epmd.service > /dev/null 2>&1 || :
+    systemctl --no-reload disable leofs-epmd.socket > /dev/null 2>&1 || :
+    systemctl stop leofs-epmd.socket > /dev/null 2>&1 || :
+    systemctl --no-reload disable leofs-manager-master.service > /dev/null 2>&1 || :
+    systemctl stop leofs-manager-master.service > /dev/null 2>&1 || :
+    systemctl --no-reload disable leofs-manager-slave.service > /dev/null 2>&1 || :
+    systemctl stop leofs-manager-slave.service > /dev/null 2>&1 || :
+    systemctl --no-reload disable leofs-gateway.service > /dev/null 2>&1 || :
+    systemctl stop leofs-gateway.service > /dev/null 2>&1 || :
+    systemctl --no-reload disable leofs-storage.service > /dev/null 2>&1 || :
+    systemctl stop leofs-storage.service > /dev/null 2>&1 || :
+fi
+
+exit 0
+EOT
+fi
+
+if [ "$USE_SYSTEMD" = yes ]
+then
+    cat << 'EOT' >> debian/leofs.postrm
+if [ "$1" = "remove" ]; then
+    systemctl daemon-reload
+fi
+
+exit 0
+EOT
+fi
 
 cat << 'EOT' >> debian/rules
 #!/usr/bin/make -f
@@ -162,11 +239,14 @@ package = leofs
 EOT
 cat << EOT >> debian/rules
 version = ${1}
+use_systemd = ${USE_SYSTEMD}
 EOT
 cat << 'EOT' >> debian/rules
 docdir = debian/tmp/usr/share/doc/$(package)
 installdir = debian/tmp/usr/local/$(package)/$(version)
 bindir = debian/tmp/usr/local/bin
+presetdir = debian/tmp/lib/systemd/system-preset
+unitdir = debian/tmp/lib/systemd/system
 
 build:	binary
 
@@ -183,8 +263,16 @@ binary-arch:	checkroot build
 	$(MAKE)
 	$(MAKE) release
 	cp -r package/* $(installdir)
+ifeq ($(use_systemd),yes)
+	mkdir -p $(presetdir) $(unitdir)
+	cp rel/service/*.preset $(presetdir)/
+	cp rel/service/*.service $(unitdir)
+	cp rel/service/*.socket $(unitdir)
+	cp rel/leo_manager/service/leofs-epmd.service $(unitdir)
+endif
 	mkdir $(installdir)/leo_storage/avs
 	mkdir $(installdir)/leo_gateway/cache
+	ln -s $(version) debian/tmp/usr/local/$(package)/current
 	cp leofs-adm $(bindir)
 	dpkg-shlibdeps $(installdir)/leo_manager_0/erts-*/bin/beam
 	mkdir -p debian/tmp/DEBIAN

@@ -1,3 +1,5 @@
+%define use_systemd (0%{?rhel} && 0%{?rhel} >= 7) || (0%{?fedora} && 0%{?fedora} >= 18)
+
 Name:		leofs
 Version:	%{ver}
 Release:	1
@@ -14,16 +16,20 @@ BuildRequires:  git
 BuildRequires:  cmake gcc check-devel
 # for building eleveldb/c_src/snappy
 BuildRequires:  gcc-c++ lzo-devel zlib-devel
+%if %{use_systemd}
+BuildRequires: systemd
+%endif
 
-Requires(post): %{_sbindir}/update-alternatives
-Requires(postun): %{_sbindir}/update-alternatives
 Requires:       sudo
+%{?systemd_requires}
+
 #BuildArch:	noarch
 
 %define target_dir %{_prefix}/local/leofs/%{version}
 
 %description
-LeoFS is a highly available, distributed, eventually consistent object/blob store. Organizations can use LeoFS to store lots of data efficiently, safely, and inexpensive.
+LeoFS is a highly available, distributed, eventually consistent S3 compatible storage.
+Organizations can use LeoFS to store lots of data efficiently, safely, and inexpensive.
 
 %prep
 echo ${RPM_BUILD_ROOT}
@@ -33,7 +39,6 @@ echo ${RPM_BUILD_ROOT}
 git clone https://github.com/leo-project/leofs.git ${RPM_BUILD_DIR}/leofs.git
 cd leofs.git
 git checkout %{version}
-
 
 %build
 cd leofs.git
@@ -48,6 +53,17 @@ make release
 %__mkdir -p ${RPM_BUILD_ROOT}%{_prefix}/local/leofs/%{version}/leo_storage/avs
 %__mkdir -p ${RPM_BUILD_ROOT}%{_prefix}/local/leofs/%{version}/leo_gateway/cache
 
+%__ln_s %{version} ${RPM_BUILD_ROOT}%{_prefix}/local/leofs/current
+
+%if %{use_systemd}
+%__mkdir -p ${RPM_BUILD_ROOT}%{_unitdir}
+%__mkdir -p ${RPM_BUILD_ROOT}%{_presetdir}
+%__cp -p ${RPM_BUILD_DIR}/leofs.git/rel/service/*.service ${RPM_BUILD_ROOT}%{_unitdir}
+%__cp -p ${RPM_BUILD_DIR}/leofs.git/rel/service/*.socket ${RPM_BUILD_ROOT}%{_unitdir}
+%__cp -p ${RPM_BUILD_DIR}/leofs.git/rel/service/*.preset ${RPM_BUILD_ROOT}%{_presetdir}
+%__cp -p ${RPM_BUILD_DIR}/leofs.git/rel/leo_manager/service/leofs-epmd.service ${RPM_BUILD_ROOT}%{_unitdir}
+%endif
+
 %clean
 %__rm -rf ${RPM_BUILD_DIR}/leofs.git
 %__rm -rf ${RPM_BUILD_ROOT}
@@ -60,8 +76,15 @@ getent passwd leofs > /dev/null || \
 :
 
 %post
-# special case: handle side-by-side install with old version where leofs-adm isn't handled by alternatives
-[ -L %{_prefix}/local/bin/leofs-adm ] || rm -f %{_prefix}/local/bin/leofs-adm
+%if %use_systemd
+# Install defaults for systemd services on first package installation
+%systemd_post leofs-epmd.service
+%systemd_post leofs-epmd.socket
+%systemd_post leofs-manager-master.service
+%systemd_post leofs-manager-slave.service
+%systemd_post leofs-gateway.service
+%systemd_post leofs-storage.service
+%endif
 
 # .erlang.cookie needs to be created now, otherwise startup script will try to
 # create it and fail, since $HOME isn't writable by leofs user.
@@ -75,13 +98,44 @@ CURRENT_PERMISSIONS=$(stat -c %a $COOKIE)
 [ "a$CURRENT_OWNER" = aleofs:leofs ] || chown leofs:leofs $COOKIE
 [ "a$CURRENT_PERMISSIONS" = a400 ] || chmod 0400 $COOKIE
 
+%triggerun -- leofs < 1.4.0
+[ $2 = 0 ] && exit 0; :
+%if %use_systemd
+# Install defaults for systemd services on upgrade from versions without systemd support
+systemctl preset leofs-epmd.service
+systemctl preset leofs-epmd.socket
+systemctl preset leofs-manager-master.service
+systemctl preset leofs-manager-slave.service
+systemctl preset leofs-gateway.service
+systemctl preset leofs-storage.service
+%endif
+
+%preun
+%if %use_systemd
+%systemd_preun leofs-epmd.service
+%systemd_preun leofs-epmd.socket
+%systemd_preun leofs-manager-master.service
+%systemd_preun leofs-manager-slave.service
+%systemd_preun leofs-gateway.service
+%systemd_preun leofs-storage.service
+%endif
+
 %postun
-%{_sbindir}/update-alternatives --remove leofs-adm %{_prefix}/local/leofs/%{version}/leofs-adm
+%if %use_systemd
+%systemd_postun leofs-epmd.service
+%systemd_postun leofs-epmd.socket
+%systemd_postun leofs-manager-master.service
+%systemd_postun leofs-manager-slave.service
+%systemd_postun leofs-gateway.service
+%systemd_postun leofs-storage.service
+%endif
 
 %posttrans
-# Runs only on install/upgrade; on upgrade, runs after %postun of old package,
-# so there is no conflict if both old and new version try to remove/install the same alternative
-%{_sbindir}/update-alternatives --install %{_prefix}/local/bin/leofs-adm leofs-adm %{_prefix}/local/leofs/%{version}/leofs-adm 10
+%if %use_systemd
+# "daemon-reload" is needed to silence "start" from next command after upgrade
+systemctl daemon-reload
+systemctl start leofs-epmd.socket
+%endif
 
 %files
 %defattr(-,root,root,-)
@@ -110,20 +164,37 @@ CURRENT_PERMISSIONS=$(stat -c %a $COOKIE)
 %{target_dir}/leo_*/lib
 %{target_dir}/leo_*/releases
 %{target_dir}/leo_*/snmp
-%ghost %{_prefix}/local/bin/leofs-adm
+%{_prefix}/local/bin/leofs-adm
+%{_prefix}/local/leofs/current
+
+%if %{use_systemd}
+%{_unitdir}/*
+%{_presetdir}/*
+%endif
+
 
 %changelog
+* Thu Aug 31 2017 <Vladimir.MV@gmail.com>
+- Systemd services support
+- Removed support for installing multiple versions at once
+
 * Thu Mar 23 2017 <Vladimir.MV@gmail.com>
 - Run as non-privileged user
+
 * Thu Feb 23 2017 <Vladimir.MV@gmail.com>
 - Manage /usr/local/bin/leofs-adm with alternatives
+
 * Fri Mar 13 2015 <leofs@leo-project.net>
 - Modify directory name and hierarchy
+
 * Wed Jun 26 2013 <leofs@leo-project.net>
 - Modify directory name and hierarchy
+
 * Mon Jun 17 2013 <leofs@leo-project.net>
 - Change directory name and hierarchy
+
 * Wed Mar 27 2013 <leofs@leo-project.net>
 - Corresponding argument
+
 * Thu Jul  5 2012 <leofs@leo-project.net>
 - Initial build.

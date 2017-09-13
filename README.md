@@ -46,5 +46,7 @@ $ cp deb/make_deb.sh {WORK_DIRECTORY}
 4. Build deb file
 ```bash
 $ cd {WORK_DIRECTORY}
-$ sh make_deb.sh {LeoFS's Version}
+$ sh make_deb.sh {LeoFS's Version} {use systemd}
 ```
+where "use systemd" can be either "yes" for building packages for systemd-compatible distro
+such as Ubuntu 16.04 or "no" for making package that doesn't support (and depends on) systemd.
