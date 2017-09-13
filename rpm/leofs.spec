@@ -98,7 +98,7 @@ CURRENT_PERMISSIONS=$(stat -c %a $COOKIE)
 [ "a$CURRENT_OWNER" = aleofs:leofs ] || chown leofs:leofs $COOKIE
 [ "a$CURRENT_PERMISSIONS" = a400 ] || chmod 0400 $COOKIE
 
-%triggerun -- leofs < 1.4.0
+%triggerun -- leofs < 1.3.8
 [ $2 = 0 ] && exit 0; :
 %if %use_systemd
 # Install defaults for systemd services on upgrade from versions without systemd support
