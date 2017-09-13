@@ -158,8 +158,8 @@ EOT
 if [ "$USE_SYSTEMD" = yes ]
 then
     cat << 'EOT' >> debian/leofs.postinst
-# If this is first configured version, or previous configured version was < 1.4.0, reset services state
-        if [ -z "$2" ] || dpkg --compare-versions "$2" lt 1.4.0
+# If this is first configured version, or previous configured version was < 1.3.8, reset services state
+        if [ -z "$2" ] || dpkg --compare-versions "$2" lt 1.3.8
         then
 # preset enables everything by default on Debian/Ubuntu, so it's meaningless to do for the rest of services
             systemctl preset leofs-epmd.socket
@@ -182,6 +182,10 @@ EOT
 if [ "$USE_SYSTEMD" = yes ]
 then
     cat << 'EOT' >> debian/leofs.prerm
+#!/bin/sh
+
+set -e
+
 if [ "$1" = "remove" ]; then
     systemctl --no-reload disable leofs-epmd.service > /dev/null 2>&1 || :
     systemctl stop leofs-epmd.service > /dev/null 2>&1 || :
@@ -204,6 +208,10 @@ fi
 if [ "$USE_SYSTEMD" = yes ]
 then
     cat << 'EOT' >> debian/leofs.postrm
+#!/bin/sh
+
+set -e
+
 if [ "$1" = "remove" ]; then
     systemctl daemon-reload
 fi
