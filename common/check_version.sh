@@ -32,7 +32,7 @@ go_on_after_warning () {
 
     echo "Do you want to continue? The resulting package is not likely to work correctly."
     echo "It is recommended that you use older version of packaging scripts instead"
-    echo "(older version is available at https://github.com/leo-project/leofs_package/tree/1.2.0)"
+    echo "(older version is available at https://github.com/leo-project/leofs_package/releases/tag/1.2.0)"
     read -p "Type y to continue: " answer
     case "$answer" in
         y|Y ) echo "Ignoring possible problems, proceed at your own risk!"
@@ -48,8 +48,8 @@ check_epmd_for_systemd() {
 
     echo "You are trying to build package with systemd support using Erlang runtime built"
     echo "WITHOUT systemd support. This is not supported and will result in broken package,"
-	echo "as package with systemd support depends on \"socket activation\" feature in epmd."
-	echo "Please use Erlang \>= 17 configured with --enable-systemd option."
+    echo "as package with systemd support depends on \"socket activation\" feature in epmd."
+    echo "Please use Erlang \>= 17 configured with --enable-systemd option."
     read -p "Type y to continue: " answer
     case "$answer" in
         y|Y ) echo "Ignoring possible problems, proceed at your own risk!" ;;
