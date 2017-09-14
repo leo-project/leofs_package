@@ -48,5 +48,5 @@ $ cp deb/make_deb.sh {WORK_DIRECTORY}
 $ cd {WORK_DIRECTORY}
 $ sh make_deb.sh {LeoFS's Version} {use systemd}
 ```
-where "use systemd" can be either "yes" for building packages for systemd-compatible distro
-such as Ubuntu 16.04 or "no" for making package that doesn't support (and depends on) systemd.
+where "use systemd" can be either "yes" for building a package for systemd-compatible distro
+such as Ubuntu 16.04 or "no" for making a package that doesn't support (and depends on) systemd.
