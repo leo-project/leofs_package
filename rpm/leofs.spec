@@ -53,13 +53,20 @@ make release
 %__mkdir -p ${RPM_BUILD_ROOT}%{_prefix}/local/leofs/%{version}/leo_storage/avs
 %__mkdir -p ${RPM_BUILD_ROOT}%{_prefix}/local/leofs/%{version}/leo_gateway/cache
 
+%__mkdir -p ${RPM_BUILD_ROOT}%{_sysconfdir}/leofs/leo_manager_0 ${RPM_BUILD_ROOT}%{_sysconfdir}/leofs/leo_manager_1
+%__mkdir -p ${RPM_BUILD_ROOT}%{_sysconfdir}/leofs/leo_gateway ${RPM_BUILD_ROOT}%{_sysconfdir}/leofs/leo_storage
+%__cp -p ${RPM_BUILD_DIR}/leofs.git/rel/common/leofs.conf ${RPM_BUILD_ROOT}%{_sysconfdir}/leofs
+%__cp -rp ${RPM_BUILD_ROOT}%{_prefix}/local/leofs/%{version}/leo_manager_0/etc/*.{environment,conf,d} ${RPM_BUILD_ROOT}%{_sysconfdir}/leofs/leo_manager_0
+%__cp -rp ${RPM_BUILD_ROOT}%{_prefix}/local/leofs/%{version}/leo_manager_1/etc/*.{environment,conf,d} ${RPM_BUILD_ROOT}%{_sysconfdir}/leofs/leo_manager_1
+%__cp -rp ${RPM_BUILD_ROOT}%{_prefix}/local/leofs/%{version}/leo_gateway/etc/*.{environment,conf,d} ${RPM_BUILD_ROOT}%{_sysconfdir}/leofs/leo_gateway
+%__cp -rp ${RPM_BUILD_ROOT}%{_prefix}/local/leofs/%{version}/leo_storage/etc/*.{environment,conf,d} ${RPM_BUILD_ROOT}%{_sysconfdir}/leofs/leo_storage
+
 %__ln_s %{version} ${RPM_BUILD_ROOT}%{_prefix}/local/leofs/current
 
 %if %{use_systemd}
 %__mkdir -p ${RPM_BUILD_ROOT}%{_unitdir}
 %__mkdir -p ${RPM_BUILD_ROOT}%{_presetdir}
-%__cp -p ${RPM_BUILD_DIR}/leofs.git/rel/service/*.service ${RPM_BUILD_ROOT}%{_unitdir}
-%__cp -p ${RPM_BUILD_DIR}/leofs.git/rel/service/*.socket ${RPM_BUILD_ROOT}%{_unitdir}
+%__cp -p ${RPM_BUILD_DIR}/leofs.git/rel/service/*.{service,socket} ${RPM_BUILD_ROOT}%{_unitdir}
 %__cp -p ${RPM_BUILD_DIR}/leofs.git/rel/service/*.preset ${RPM_BUILD_ROOT}%{_presetdir}
 %__cp -p ${RPM_BUILD_DIR}/leofs.git/rel/leo_manager/service/leofs-epmd.service ${RPM_BUILD_ROOT}%{_unitdir}
 %endif
@@ -147,6 +154,8 @@ systemctl start leofs-epmd.socket
 %attr(2755,leofs,leofs) %{target_dir}/leo_*/work
 %dir %attr(2755,leofs,leofs) %{target_dir}/leo_*/etc
 %dir %attr(2755,leofs,leofs) %{target_dir}/leo_*/snmp/*/db
+%dir %{_sysconfdir}/leofs
+%dir %attr(2755,leofs,leofs) %{_sysconfdir}/leofs/leo_*
 
 %{target_dir}/leofs-adm
 %{target_dir}/README.md
@@ -161,6 +170,10 @@ systemctl start leofs-epmd.socket
 %config(noreplace) %{target_dir}/leo_*/etc/*.environment
 %config(noreplace) %{target_dir}/leo_gateway/etc/server_cert.pem
 %config(noreplace) %{target_dir}/leo_gateway/etc/server_key.pem
+%config(noreplace) %{_sysconfdir}/leofs/leofs.conf
+%config(noreplace) %{_sysconfdir}/leofs/leo_*/*.conf
+%config(noreplace) %{_sysconfdir}/leofs/leo_*/*.environment
+%{_sysconfdir}/leofs/leo_*/*.d
 %{target_dir}/leo_*/lib
 %{target_dir}/leo_*/releases
 %{target_dir}/leo_*/snmp
