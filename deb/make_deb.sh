@@ -113,7 +113,7 @@ EOT
 echo 9 > debian/compat
 
 cat << 'EOT' >> debian/leofs.postinst
-#!/bin/sh
+#!/bin/bash
 
 set -e
 
@@ -141,17 +141,19 @@ case "$1" in
 
         chown -R leofs:leofs /usr/local/leofs/$version/leo_storage/avs
         chown -R leofs:leofs /usr/local/leofs/$version/leo_gateway/cache
-        chown -R leofs:leofs /usr/local/leofs/$version/leo_*/log
-        chown -R leofs:leofs /usr/local/leofs/$version/leo_*/work
-        chown leofs:leofs /usr/local/leofs/$version/leo_*/etc
-        chown leofs:leofs /usr/local/leofs/$version/leo_*/snmp/*/db
+        chown -R leofs:leofs /usr/local/leofs/$version/leo_{manager_0,manager_1,storage,gateway}/log
+        chown -R leofs:leofs /usr/local/leofs/$version/leo_{manager_0,manager_1,storage,gateway}/work
+        chown leofs:leofs /usr/local/leofs/$version/leo_{manager_0,manager_1,storage,gateway}/etc
+        chown leofs:leofs /etc/leofs/leo_{manager_0,manager_1,storage,gateway}
+        chown leofs:leofs /usr/local/leofs/$version/leo_{manager_0,manager_1,storage,gateway}/snmp/*/db
 
         chmod -R 2755 /usr/local/leofs/$version/leo_storage/avs
         chmod -R 2755 /usr/local/leofs/$version/leo_gateway/cache
-        chmod -R 2755 /usr/local/leofs/$version/leo_*/log
-        chmod 2755 /usr/local/leofs/$version/leo_*/work
-        chmod 2755 /usr/local/leofs/$version/leo_*/etc
-        chmod 2755 /usr/local/leofs/$version/leo_*/snmp/*/db
+        chmod -R 2755 /usr/local/leofs/$version/leo_{manager_0,manager_1,storage,gateway}/log
+        chmod 2755 /usr/local/leofs/$version/leo_{manager_0,manager_1,storage,gateway}/work
+        chmod 2755 /usr/local/leofs/$version/leo_{manager_0,manager_1,storage,gateway}/etc
+        chmod 2755 /etc/leofs/leo_{manager_0,manager_1,storage,gateway}
+        chmod 2755 /usr/local/leofs/$version/leo_{manager_0,manager_1,storage,gateway}/snmp/*/db
 
 EOT
 
@@ -239,6 +241,8 @@ cat << 'EOT' >> debian/rules
 # This has to be exported to make some magic below work.
 export DH_OPTIONS
 
+SHELL=/bin/bash
+
 
 #%:
 #	dh $@
@@ -255,6 +259,7 @@ installdir = debian/tmp/usr/local/$(package)/$(version)
 bindir = debian/tmp/usr/local/bin
 presetdir = debian/tmp/lib/systemd/system-preset
 unitdir = debian/tmp/lib/systemd/system
+confdir = debian/tmp/etc/leofs
 
 build:	binary
 
@@ -268,14 +273,20 @@ binary-arch:	checkroot build
 	rm -rf debian/tmp
 	mkdir -p $(installdir)
 	mkdir -p $(bindir)
+	mkdir -p $(confdir)/leo_manager_0 $(confdir)/leo_manager_1
+	mkdir -p $(confdir)/leo_gateway $(confdir)/leo_storage
 	$(MAKE)
 	$(MAKE) release
 	cp -r package/* $(installdir)
+	cp rel/common/leofs.conf $(confdir)
+	cp -r $(installdir)/leo_manager_0/etc/*.{environment,conf,d} $(confdir)/leo_manager_0
+	cp -r $(installdir)/leo_manager_1/etc/*.{environment,conf,d} $(confdir)/leo_manager_1
+	cp -r $(installdir)/leo_gateway/etc/*.{environment,conf,d} $(confdir)/leo_gateway
+	cp -r $(installdir)/leo_storage/etc/*.{environment,conf,d} $(confdir)/leo_storage
 ifeq ($(use_systemd),yes)
 	mkdir -p $(presetdir) $(unitdir)
 	cp rel/service/*.preset $(presetdir)/
-	cp rel/service/*.service $(unitdir)
-	cp rel/service/*.socket $(unitdir)
+	cp rel/service/*.{service,socket} $(unitdir)
 	cp rel/leo_manager/service/leofs-epmd.service $(unitdir)
 endif
 	mkdir $(installdir)/leo_storage/avs
