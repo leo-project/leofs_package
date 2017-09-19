@@ -57,7 +57,7 @@ Homepage: https://leo-project.net/leofs/
 
 Package: leofs
 Architecture: any
-Depends: ${shlibs:Depends}, sudo,
+Depends: ${shlibs:Depends}, sudo, sysstat, netcat-openbsd,
 EOT
 
 if [ "$USE_SYSTEMD" = yes ]
