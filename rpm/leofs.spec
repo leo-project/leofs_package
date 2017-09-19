@@ -20,7 +20,7 @@ BuildRequires:  gcc-c++ lzo-devel zlib-devel
 BuildRequires: systemd
 %endif
 
-Requires:       sudo
+Requires:       sudo sysstat /usr/bin/nc
 %{?systemd_requires}
 
 #BuildArch:	noarch
