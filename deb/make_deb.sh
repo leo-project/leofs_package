@@ -260,6 +260,7 @@ bindir = debian/tmp/usr/local/bin
 presetdir = debian/tmp/lib/systemd/system-preset
 unitdir = debian/tmp/lib/systemd/system
 confdir = debian/tmp/etc/leofs
+limitsconfdir = debian/tmp/etc/security/limits.d
 
 build:	binary
 
@@ -275,10 +276,12 @@ binary-arch:	checkroot build
 	mkdir -p $(bindir)
 	mkdir -p $(confdir)/leo_manager_0 $(confdir)/leo_manager_1
 	mkdir -p $(confdir)/leo_gateway $(confdir)/leo_storage
+	mkdir -p $(limitsconfdir)
 	$(MAKE)
 	$(MAKE) release
 	cp -r package/* $(installdir)
 	cp rel/common/leofs.conf $(confdir)
+	cp rel/common/leofs-limits.conf $(limitsconfdir)/70-leofs.conf
 	cp -r $(installdir)/leo_manager_0/etc/*.{environment,conf,d} $(confdir)/leo_manager_0
 	cp -r $(installdir)/leo_manager_1/etc/*.{environment,conf,d} $(confdir)/leo_manager_1
 	cp -r $(installdir)/leo_gateway/etc/*.{environment,conf,d} $(confdir)/leo_gateway

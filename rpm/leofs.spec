@@ -56,6 +56,8 @@ make release
 %__mkdir -p ${RPM_BUILD_ROOT}%{_sysconfdir}/leofs/leo_manager_0 ${RPM_BUILD_ROOT}%{_sysconfdir}/leofs/leo_manager_1
 %__mkdir -p ${RPM_BUILD_ROOT}%{_sysconfdir}/leofs/leo_gateway ${RPM_BUILD_ROOT}%{_sysconfdir}/leofs/leo_storage
 %__cp -p ${RPM_BUILD_DIR}/leofs.git/rel/common/leofs.conf ${RPM_BUILD_ROOT}%{_sysconfdir}/leofs
+%__mkdir -p ${RPM_BUILD_ROOT}%{_sysconfdir}/security/limits.d
+%__cp -p ${RPM_BUILD_DIR}/leofs.git/rel/common/leofs-limits.conf ${RPM_BUILD_ROOT}%{_sysconfdir}/security/limits.d/70-leofs.conf
 %__cp -rp ${RPM_BUILD_ROOT}%{_prefix}/local/leofs/%{version}/leo_manager_0/etc/*.{environment,conf,d} ${RPM_BUILD_ROOT}%{_sysconfdir}/leofs/leo_manager_0
 %__cp -rp ${RPM_BUILD_ROOT}%{_prefix}/local/leofs/%{version}/leo_manager_1/etc/*.{environment,conf,d} ${RPM_BUILD_ROOT}%{_sysconfdir}/leofs/leo_manager_1
 %__cp -rp ${RPM_BUILD_ROOT}%{_prefix}/local/leofs/%{version}/leo_gateway/etc/*.{environment,conf,d} ${RPM_BUILD_ROOT}%{_sysconfdir}/leofs/leo_gateway
@@ -156,6 +158,7 @@ systemctl start leofs-epmd.socket
 %dir %attr(2755,leofs,leofs) %{target_dir}/leo_*/snmp/*/db
 %dir %{_sysconfdir}/leofs
 %dir %attr(2755,leofs,leofs) %{_sysconfdir}/leofs/leo_*
+%{_sysconfdir}/security/limits.d/70-leofs.conf
 
 %{target_dir}/leofs-adm
 %{target_dir}/README.md
