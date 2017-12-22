@@ -17,7 +17,7 @@ BuildRequires:  cmake gcc check-devel
 # for building eleveldb/c_src/snappy
 BuildRequires:  gcc-c++ lzo-devel zlib-devel
 %if %{use_systemd}
-BuildRequires: systemd
+BuildRequires: systemd systemd-devel
 %endif
 
 Requires:       sudo sysstat /usr/bin/nc
@@ -43,7 +43,12 @@ git checkout %{version}
 %build
 cd leofs.git
 make
+%if %{use_systemd}
+make sd_notify
+make release with_sd_notify=yes
+%else
 make release
+%endif
 
 %install
 %__mkdir -p ${RPM_BUILD_ROOT}%{_prefix}/local/leofs/%{version}
