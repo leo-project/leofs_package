@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# This script ensures that no one tries to use new version of packaging script (which require leofs > 1.3.7)
+# This script ensures that no one tries to use new version of packaging script (which require leofs > 1.3.8)
 # with an older version by mistake. The way this check works might become obsolete at some point when original file
 # is moved; it will probably be OK to replace or remove it at that point.
 
@@ -8,7 +8,7 @@
 
 continue_anyway=false
 version=$1
-URL="https://raw.githubusercontent.com/leo-project/leofs/$version/rel/service/leofs-epmd.socket"
+URL="https://raw.githubusercontent.com/leo-project/leofs/$version/make_reltool.sh"
 tmpfile=$(mktemp)
 
 case "$2" in
@@ -32,7 +32,7 @@ go_on_after_warning () {
 
     echo "Do you want to continue? The resulting package is not likely to work correctly."
     echo "It is recommended that you use older version of packaging scripts instead"
-    echo "(older version is available at https://github.com/leo-project/leofs_package/releases/tag/1.2.0)"
+    echo "(older version is available at https://github.com/leo-project/leofs_package/releases/tag/1.3.0)"
     read -p "Type y to continue: " answer
     case "$answer" in
         y|Y ) echo "Ignoring possible problems, proceed at your own risk!"
@@ -71,8 +71,8 @@ fi
 
 curl -s "$URL" -o $tmpfile
 
-# sanity check - whether curl actually has downloaded unit file
-head -1 $tmpfile | grep Unit  > /dev/null
+# sanity check - whether curl actually has downloaded shell script
+head -1 $tmpfile | grep /bin/bash  > /dev/null
 if [ $? -ne 0 ]
 then
     echo "Unable to download file from $URL"

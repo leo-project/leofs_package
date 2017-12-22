@@ -41,12 +41,12 @@ Source: leofs
 Section: unknown
 Priority: optional
 Maintainer: LeoProject <leoproject_leofs@googlegroups.com>
-Build-Depends: debhelper (>= 9.0.0), check, git, cmake, liblzo2-dev, zlib1g-dev,
+Build-Depends: debhelper (>= 9.0.0), check, git, cmake, liblzo2-dev, zlib1g-dev, findutils,
 EOT
 
 if [ "$USE_SYSTEMD" = yes ]
 then
-    echo "  dh-systemd" >> debian/control
+    echo "  dh-systemd, libsystemd-dev" >> debian/control
 fi
 
 cat << 'EOT' >> debian/control
@@ -278,7 +278,10 @@ binary-arch:	checkroot build
 	mkdir -p $(confdir)/leo_gateway $(confdir)/leo_storage
 	mkdir -p $(limitsconfdir)
 	$(MAKE)
-	$(MAKE) release
+ifeq ($(use_systemd),yes)
+	$(MAKE) sd_notify
+endif
+	$(MAKE) release with_sd_notify=$(use_systemd)
 	cp -r package/* $(installdir)
 	cp rel/common/leofs.conf $(confdir)
 	cp rel/common/leofs-limits.conf $(limitsconfdir)/70-leofs.conf
@@ -296,9 +299,9 @@ endif
 	mkdir $(installdir)/leo_gateway/cache
 	ln -s $(version) debian/tmp/usr/local/$(package)/current
 	cp leofs-adm $(bindir)
-	dpkg-shlibdeps $(installdir)/leo_manager_0/erts-*/bin/beam
 	mkdir -p debian/tmp/DEBIAN
 	dh_installdeb -Pdebian/tmp
+	dpkg-shlibdeps $$(find $(installdir) -type f -exec file {} \; | grep -h ELF.*dynamically | awk -F: '{print $$1}')
 	dpkg-gencontrol
 	chown -R root:root debian/tmp
 	chmod -R u+w,go=rX debian/tmp
