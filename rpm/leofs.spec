@@ -152,8 +152,7 @@ systemctl start leofs-epmd.socket
 %endif
 
 %files
-%defattr(-,root,root,-)
-%dir %{target_dir}
+%define _unpackaged_files_terminate_build 0
 
 %attr(2755,leofs,leofs) %{target_dir}/leo_storage/avs
 %attr(2755,leofs,leofs) %{target_dir}/leo_gateway/cache
